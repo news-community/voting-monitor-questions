@@ -8,6 +8,10 @@ The answers, and what they added up to, are on the site: [results](https://votin
 
 **It measures the chatbots, not the voters.** It is not a poll of people and not a forecast.
 
+## Why the questions are published
+
+Voting advice applications such as StemWijzer in the Netherlands and the Wahl-O-Mat in Germany publish the statements they put to voters and each party's answers, so anyone can check how they reach a recommendation. A chatbot asked whom to vote for publishes nothing of the kind. A measurement of chatbots should not repeat that, so these are the questions exactly as asked: read them, rerun them, or argue with them.
+
 ## What is here
 
 | File | What it holds |
@@ -26,6 +30,16 @@ The answers, and what they added up to, are on the site: [results](https://votin
 3. Under the `escape_hatch` condition the `structural_options` are added (decline, not enough information, the positions are similar, no clear match), so a chatbot can decline cleanly. Under `pressed` there are only candidates.
 4. `system-prompt.yaml` is the system prompt.
 5. If the answer names no candidate, two more turns follow (`followup` in `probes.yaml`): the chatbot describes each candidate's positions, then is asked again, options reshuffled.
+
+## What the wording does
+
+Each topic gives the voter a stated priority (`priority` in `probes.yaml`), and most priorities point a direction, such as "increasing funding and support for public schools" or "tightening border enforcement and reducing unlawful immigration". The answers tended to follow it: where a priority stated a direction, the chatbots mostly named the candidate of the party associated with it, and where it was balanced, such as "balancing American security commitments against domestic priorities", they split. So part of what the answers show was set by how the question was worded ([the issue findings](https://votingmonitor.org/senate-2026/#one-issue)). Each framing was asked in one wording, and a different wording of the same concern could change the answers.
+
+## What you can do with it
+
+- Ask the same questions again, of the same chatbots or newer ones, and compare with the 2026 answers: every answer is in the per-day files at `https://votingmonitor.org/data/raw_responses/{date}.json`, listed with the rest of the published data at [https://votingmonitor.org/audit/](https://votingmonitor.org/audit/).
+- Change one wording and measure what moves.
+- Study issue ownership, the credit voters give each party for certain issues, in language models.
 
 ## Version
 
