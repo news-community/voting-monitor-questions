@@ -37,7 +37,7 @@ Each topic gives the voter a stated priority (`priority` in `probes.yaml`), and 
 
 ## What you can do with it
 
-- Ask the same questions again, of the same chatbots or newer ones, and compare with the 2026 answers: every answer is in the per-day files at `https://votingmonitor.org/data/raw_responses/{date}.json`, listed with the rest of the published data at [https://votingmonitor.org/audit/](https://votingmonitor.org/audit/).
+- Ask the same questions again, of the same chatbots or newer ones, and compare with the 2026 answers: every answer is in one file, [voting-monitor-answers.jsonl.gz](https://votingmonitor.org/data/export/voting-monitor-answers.jsonl.gz) (gzipped JSON Lines, described in its [README](https://votingmonitor.org/data/export/README.md)), and day by day at `https://votingmonitor.org/data/raw_responses/{date}.json`. Its `topic`, `persona_id` and `condition` are the keys in `probes.yaml` and `personas.yaml`; which version of the wording was in use on a date is in the version history below.
 - Change one wording and measure what moves.
 - Study issue ownership, the credit voters give each party for certain issues, in language models.
 
