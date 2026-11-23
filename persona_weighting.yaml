@@ -1,0 +1,84 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# persona_weighting.yaml — v0.39. Cross-persona blend weights.
+#
+# STATUS: ACTIVE. Default weights for any cross-persona aggregation in the
+# dashboard (per-race headlines, candidate AVERAGE RECOMMENDATION SHARE,
+# composite columns). Each weight is the persona's share of Alaska
+# registered voters. Pure RV — no turnout assumption, no population fallback.
+#
+# `baseline` persona absorbs voters from regions not separately polled
+# (Kenai Peninsula, non-Juneau Southeast, Interior). This is a documented
+# approximation: baseline = "what the AI says when no Alaska location is
+# stated", treated as the residual for the ~29% of registered voters
+# whose region isn't one of our 7 personas. How the site shows it:
+#   https://votingmonitor.org/how-it-works/#persona-weighting
+#
+# Honesty discipline:
+#   - Weights are an editorial choice grounded in DOE registration data,
+#     not a fact about Alaska turnout. The audit page states this.
+#   - The persona-delta interpretation (anchorage minus baseline as a
+#     model-behavior signal) is independent of this weight vector.
+#     `baseline` is used as a control there and as a residual here —
+#     two separate uses, both documented.
+#   - Native voter share (~25% of ballots cast statewide) is concentrated
+#     in urban personas and is invisible to a region-only weighting.
+#     See research doc §10 open question #3.
+#   - The dashboard ships a one-click `equal` toggle for users who want
+#     the unweighted, per-persona behavioral view.
+#
+# Updating any value here emits a `persona_weighting_change` version
+# event on the next aggregate run, rendering as an orange dashed rule on
+# every persona-aggregated trend chart.
+# ─────────────────────────────────────────────────────────────────────────────
+
+meta:
+  status: ACTIVE
+  drafted: "2026-06-13"
+  source: "Alaska Division of Elections, Voter Registration Statistics, Dec 2024"
+  source_url: "https://www.elections.alaska.gov/statistics/2024/DEC/VOTERS%20BY%20PARTY%20AND%20PRECINCT.pdf"
+  rationale_doc: "https://votingmonitor.org/how-it-works/#persona-weighting"
+  notes: |
+    `baseline` weight (0.287) absorbs the residual share of AK
+    registered voters from regions we don't separately poll: Kenai
+    Peninsula Borough, Southeast outside Juneau (Ketchikan, Sitka,
+    Petersburg, Wrangell, Haines, Skagway, Hoonah-Angoon, Prince of
+    Wales-Hyder), and Interior (Southeast Fairbanks, Copper River,
+    Yukon-Koyukuk, smaller census areas). Documented limitation;
+    future v0.40 considers adding `kenai`, `southeast_other`, and
+    `interior_other` personas to close the gap structurally.
+
+# Weights sum to 1.000 exactly. Derivation:
+#   anchorage           38.0%  (Anchorage Municipality)
+#   mat_su              12.4%  (Matanuska-Susitna Borough)
+#   fairbanks           10.2%  (Fairbanks North Star Borough)
+#   juneau               4.3%  (Juneau City and Borough)
+#   bethel_western       4.3%  (Bethel + Kusilvak + Nome + Dillingham)
+#   north_slope_village  2.1%  (North Slope + Northwest Arctic)
+#   ────────────────────────
+#   sum (mapped)        71.3%
+#   baseline            28.7%  (residual: Kenai + SE-other + Interior)
+#   ────────────────────────
+#   total              100.0%
+# v1.0 (2026-09-06) — THIS FILE IS ALASKA-ONLY, AND THAT IS NOW EXPLICIT.
+#
+# The weights below are shares of ALASKA registered voters by region. The five
+# non-Alaska Senate races have no equivalent research, so their personas are
+# deliberately absent and the site's share calculation (one in Python, one in
+# TypeScript, held equal by a test) falls back to EQUAL
+# persona weighting for any race where NOTHING is weighted.
+#
+# Until that fallback existed, absent meant weight 0, which meant the AI lens
+# returned {} and read `null` for all five new races while their rows sat in the
+# spine. Adding a state's personas here switches it from equal to weighted, so
+# do it only with real registered-voter data per region, and expect a visible
+# step in that state's series when you do.
+#
+# ABSENT is not WEIGHTED ZERO: an explicit 0.0 below still excludes a persona.
+persona_weights:
+  anchorage:           0.380
+  baseline:            0.287
+  mat_su:              0.124
+  fairbanks:           0.102
+  juneau:              0.043
+  bethel_western:      0.043
+  north_slope_village: 0.021

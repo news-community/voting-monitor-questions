@@ -1,0 +1,273 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# weighting.yaml — v0.7. Voter-exposure weighting presets.
+#
+# STATUS: ACTIVE (provisional — editorial estimates with documented sources).
+# Two uses since ADR-040 (2026-09-29):
+#   - `within_provider` scenario_B is also the PRIMARY view's split between a
+#     chatbot's own models: each chatbot counts once and its models share that
+#     by estimated use. The site's code reads this file directly, and a test
+#     fails if its exported copy of the split falls behind an edit here.
+#   - `provider_share` x `within_provider` per scenario is the SECONDARY
+#     voter-exposure view: "what does the AI ecosystem expose voters to in
+#     aggregate", a labelled editorial estimate, never a replacement.
+#
+# Empirical basis, sensitivity analysis and how the site shows it:
+#   https://votingmonitor.org/how-it-works/#voter-weighting
+# Drafted: 2026-05-22.
+#
+# Weights are editorial estimates with meaningful uncertainty. The three
+# scenarios (A/B/C) span the defensible range; readers should see all three
+# rather than a single point estimate.
+# ─────────────────────────────────────────────────────────────────────────────
+
+meta:
+  status: ACTIVE
+  drafted: "2026-05-22"
+  rationale_doc: "https://votingmonitor.org/how-it-works/#voter-weighting"
+  notes: |
+    Weights are dated editorial estimates, not facts. Updating any value in
+    this file emits a `weighting_change` version event on the next aggregate
+    run, which surfaces visibly on every relevant trend chart.
+
+# Provider-level share — a proxy for VOTER EXPOSURE: when an Alaskan asks an AI
+# "who should I vote for / which candidate fits X", which provider's model
+# ANSWERS. It is NOT a model-quality ranking, and NOT "which model powers content
+# pipelines" — a human using Claude/GPT to write an article is the human's
+# editorial judgment reaching the voter, not the model's. We credit only surfaces
+# where the MODEL ITSELF answers a voter: Gemini via Google Search AI Overviews,
+# Grok via X (Voting Monitor's research on how Alaskans reach each chatbot).
+#
+# Caveat: these weight EXPOSURE, not steering. Gemini's dominant surface (AI
+# Overviews) hedges/ranks rather than endorses, so a high Gemini weight captures
+# reach, not a candidate pick (research doc §6).
+#
+# v0.53 (2026-06-19) — rebalanced + rounded to 5s. These are editorial estimates
+# with real uncertainty; 0.105-style precision was false precision. The three
+# scenarios span the one genuine unknown: how much to credit PASSIVE embedded
+# reach (Search/X) vs ACTIVE app use. Direction preserved (A = most embedded /
+# Gemini-favorable, C = active-use / ChatGPT-dominant). within_provider splits
+# below are unchanged.
+provider_share:
+  scenario_A:
+    label: "Embedded reach ceiling (Search + X credited in full)"
+    openai:    0.35
+    google:    0.35
+    anthropic: 0.15
+    xai:       0.15
+    notes: |
+      Generous upper bound: credits passive embedded channels in full — Gemini
+      via Google Search AI Overviews (~2.5B users/mo) and Grok via X. By total
+      reach ChatGPT and Gemini are ~co-equal here. Anthropic/xAI at 0.15 is the
+      "credit every secondary channel" ceiling — above Anthropic's central
+      evidence (Claude.ai is its only consumer answering surface), and
+      intentionally a ceiling, not the default.
+    sources:
+      - "Dataconomy 2026-06 — Google AI Overviews 2.5B monthly users"
+      - "Grok embedded in X — the Grok analog of Gemini-in-Search"
+      - "Voting Monitor research on how Alaskans reach each chatbot, 2026"
+
+  scenario_B:
+    label: "Central (default)"
+    openai:    0.50
+    google:    0.30
+    anthropic: 0.10
+    xai:       0.10
+    notes: |
+      Preselected default. ChatGPT clearly leads (the dominant active app
+      everywhere); Gemini second with moderate Search credit; Claude and Grok
+      neck-and-neck at their active-reach level (Alaska Trends: Claude ~10,
+      Grok ~9). "ChatGPT ~= Gemini" is the aggressive assumption — it lives in
+      scenario A, not here.
+    sources:
+      - "US chatbot web-visit share 2026 — ChatGPT ~59%, Gemini ~19%, Claude ~12.5%"
+      - "Alaska Google Trends 2026-06-19 — Claude ~10, Grok ~9 (active interest)"
+
+  scenario_C:
+    label: "Active use (app / market share, minimal passive credit)"
+    openai:    0.60
+    google:    0.20
+    anthropic: 0.10
+    xai:       0.10
+    notes: |
+      Active-channel view: weights deliberate app/chatbot use and credits the
+      passive Search/X channels minimally. Closest to the Alaska Trends mix
+      (ChatGPT-dominant, ~71% AI-adjusted). Gemini's larger real-world reach
+      here is passive AI Overviews, which this scenario discounts.
+    sources:
+      - "Alaska Google Trends 2026-06-19 — ChatGPT ~71% AI-adjusted active share"
+      - "First Page Sage June 2026 — ChatGPT-led active chatbot share"
+
+# Within-provider model defaults — which model the consumer actually hits.
+# These ARE editorial estimates; no public data publishes the split.
+#
+# OpenAI: `gpt-5.5 Instant` became the default for all ChatGPT tiers on
+# 2026-05-05. Free-tier users hit `gpt-5.4-mini` after the 10-msg/5hr cap
+# (NOT a `gpt-5.5-mini`: that ID doesn't exist on the API). Plus/Pro users
+# can explicitly select `gpt-5.4 Thinking/Pro` for harder tasks; that
+# slot is NOT polled here (explicit-selection only, small voter share).
+#
+# xAI: `grok-4.3` is the current consumer default (GA 2026-04-30);
+# `grok-4` is a legacy alias that auto-routes to grok-4.3 since the
+# 2026-05-15 deprecation; `grok-4.20` is the reasoning-mode variant
+# (explicit user selection, small share of voter exposure).
+within_provider:
+  openai:
+    # ADR-039 (2026-09-29): ChatGPT's Free and Go default is GPT-5.6 Luna,
+    # with unlimited everyday text chats (no cap, so no mini fallback), and
+    # paid Plus/Pro get GPT-5.6 Sol (OpenAI help center, "GPT-5.6 and GPT-6
+    # Pro in ChatGPT", read 2026-09-29). ~5% of weekly users pay (reported
+    # 50M of ~1B) and paid users send more messages, hence roughly 0.90/0.10.
+    # ADR-041 (2026-11-01): Luna is polled from 2026-11-01. The paid default is
+    # now GPT-6 (Sol), so gpt-6-sol takes the paid weight ADR-039 gave 5.6 Sol
+    # (same paid-share reasoning); gpt-5.6-sol was never polled.
+    "gpt-5.6-luna":
+      scenario_A: 0.85
+      scenario_B: 0.90
+      scenario_C: 0.95
+    "gpt-6-sol":
+      scenario_A: 0.15
+      scenario_B: 0.10
+      scenario_C: 0.05
+    "gpt-5.6-sol":
+      scenario_A: 0.15
+      scenario_B: 0.10
+      scenario_C: 0.05
+    # the polled pair until 2026-10-31 (ADR-041); weights kept for historical
+    # renormalization. NOT re-estimated: they describe the pre-Luna
+    # cap-and-fallback routing, and are superseded when Luna/Sol are polled.
+    "gpt-5.5":
+      scenario_A: 0.50
+      scenario_B: 0.55
+      scenario_C: 0.75
+    "gpt-5.4-mini":
+      scenario_A: 0.40
+      scenario_B: 0.35
+      scenario_C: 0.20
+    "gpt-5":
+      scenario_A: 0.10
+      scenario_B: 0.10
+      scenario_C: 0.05
+    notes: |
+      Updated 2026-05-23 to add gpt-5.4-mini as a polled slot — it is
+      the actual free-tier fallback model per OpenAI's consumer routing
+      (the "mini" the free tier drops to after the 10-msg/5hr cap).
+      gpt-5.5 Instant is the default for the first 10 free messages and
+      the Plus default. After the free-tier cap, users drop to
+      gpt-5.4-mini until reset. Scenario A weights mini higher (assumes
+      most free voters do heavy research and hit the cap). Scenario C
+      weights mini lower (assumes a typical voter sends few queries).
+      gpt-5 stays at 5–10% as the legacy API alias — increasingly
+      irrelevant to consumer exposure.
+
+  google:
+    # Active (2026-07-24): Gemini app free default is 3.6 Flash (GA 2026-07-21,
+    # replaced 3.5 Flash); the free daily Pro allotment is 3.1 Pro (the live
+    # `-preview` id; no GA `gemini-3.1-pro` exists). 0.70/0.30 split.
+    # ADR-039 (2026-09-29): 0.70/0.30 -> 0.80/0.20. Gemini app limits have been
+    # compute-based since 2026-05-17 and "more advanced models consume more of
+    # your usage" (Gemini help center), so Pro draws down the allowance faster.
+    # Low confidence: Google publishes no split.
+    # ADR-041 (2026-11-01): without a plan the app gives "Auto or Flash-Lite";
+    # "most prompts will use Flash-Lite", harder ones "may use Flash or Pro"
+    # (Gemini Apps Help, "About Gemini models", read 2026-10-31). Flash-Lite is
+    # added and takes most of the share; Flash and Pro keep the escalations,
+    # roughly in their earlier 0.80/0.20 proportion. Still an estimate.
+    "gemini-3.5-flash-lite":
+      scenario_A: 0.65
+      scenario_B: 0.75
+      scenario_C: 0.85
+    "gemini-3.6-flash":
+      scenario_A: 0.25
+      scenario_B: 0.20
+      scenario_C: 0.12
+    "gemini-3.1-pro-preview":
+      scenario_A: 0.10
+      scenario_B: 0.05
+      scenario_C: 0.03
+    # retired — weights KEPT so historical dates renormalize correctly (ADR-027 pattern)
+    "gemini-3.5-flash":            # free default May19-Jul21 2026
+      scenario_A: 0.70
+      scenario_B: 0.70
+      scenario_C: 0.70
+    # retired 2026-07-10
+    "gemini-2.5-flash":
+      scenario_A: 0.70
+      scenario_B: 0.70
+      scenario_C: 0.70
+    "gemini-2.5-pro":
+      scenario_A: 0.30
+      scenario_B: 0.30
+      scenario_C: 0.30
+    notes: |
+      Gemini app defaults to Flash (now 3.5 Flash); Pro (now 3.1 Pro, live as
+      the `-preview` id) is the daily free allotment / explicit select. 2.5
+      Flash/Pro retired 2026-07-10; weights kept for historical renormalization.
+      No public data; estimate is the same across scenarios (stable default).
+
+  anthropic:
+    # v0.57/ADR-030 (2026-07-10) active — Sonnet 5 is the claude.ai free+Pro
+    # default; Haiku 4.5 is the free lighter "quick reply" opt-in (minority).
+    # ADR-039 (2026-09-29): 0.80/0.20 -> 0.90/0.10. Sonnet 5 is the confirmed
+    # Free and Pro default (Anthropic, 2026-06-30); Haiku is an opt-in, and its
+    # availability on Free could not be confirmed. Low confidence on the split.
+    # Sonnet 5.5 launched 2026-09-28; Anthropic has not said it replaced
+    # Sonnet 5 as the app default (only press reports do), so it is not polled.
+    "claude-sonnet-5":
+      scenario_A: 0.85
+      scenario_B: 0.90
+      scenario_C: 0.95
+    "claude-haiku-4-5":
+      scenario_A: 0.15
+      scenario_B: 0.10
+      scenario_C: 0.05
+    # retired (ADR-030 sonnet-4-6 / ADR-027 opus-4-7) — weights KEPT for
+    # historical renormalization.
+    "claude-sonnet-4-6":
+      scenario_A: 0.75
+      scenario_B: 0.75
+      scenario_C: 0.75
+    "claude-opus-4-7":
+      scenario_A: 0.25
+      scenario_B: 0.25
+      scenario_C: 0.25
+    notes: |
+      Claude.ai free + Pro defaults to Sonnet (now Sonnet 5); Haiku 4.5 is the
+      free lighter model — an opt-in for quick replies (~20% est). Opus (explicit
+      Pro select) is not polled. Sonnet 4.6 retired 2026-07-10, Opus 4.7 dropped
+      2026-06-14; weights kept for historical renormalization. No public data.
+
+  xai:
+    # grok-4.3 stays the best-pollable consumer proxy (free ids redirect to it);
+    # v0.57/ADR-030 adds grok-4.5 (GA 2026-07-08) as the flagship — small
+    # free-voter share (mostly paid/coding), so a modest weight.
+    # ADR-039 (2026-09-29): FLIPPED. "Grok 4.5 now powers Grok wherever you
+    # use it, live today on grok.com, on X, and in the Grok apps" (xAI,
+    # 2026-07-22). grok-4.3 keeps a residual share because Grok's free "Fast"
+    # mode names no model. Weights apply to every date, so Jul 8-22 (4.5
+    # polled, not yet the default) is slightly over-weighted toward 4.5.
+    "grok-4.5":
+      scenario_A: 0.70
+      scenario_B: 0.80
+      scenario_C: 0.90
+    "grok-4.3":
+      scenario_A: 0.25
+      scenario_B: 0.15
+      scenario_C: 0.05
+    "grok-4":
+      scenario_A: 0.10
+      scenario_B: 0.05
+      scenario_C: 0.02
+    "grok-4.20":
+      scenario_A: 0.05
+      scenario_B: 0.05
+      scenario_C: 0.03
+    notes: |
+      Updated 2026-05-23 to reflect Grok's actual model lineup. grok-4.3
+      went GA 2026-04-30 and is the current default for x.ai chat and
+      Grok-on-X. grok-4 is now a legacy alias that auto-routes to
+      grok-4.3 since the 2026-05-15 deprecation (verified via
+      model_returned in our own polling data). grok-4.20 is the
+      reasoning-mode variant — voters explicitly select it, so its share
+      of voter exposure is small. Splits assume grok-4.3 dominates
+      voter exposure (~85–95%), with grok-4 alias usage dying off and
+      reasoning-mode opt-in at the low single digits.
