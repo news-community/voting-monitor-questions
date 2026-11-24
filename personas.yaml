@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# personas.yaml — ACTIVE (provisional, unreviewed).  Companion: probes.yaml
+# personas.yaml, ACTIVE (provisional, unreviewed).  Companion: probes.yaml
 #
 # STATUS: ACTIVE (NOT editorially reviewed). Flipped from DRAFT for local
 # build & testing. Runs write to data/raw/_draft/ (test data, never the
@@ -7,12 +7,12 @@
 #
 # v0.1 introduces the persona dimension: each probe is asked with one of
 # several geographic personas prepended. The persona->baseline delta is a
-# primary metric. Personas are GEOGRAPHIC ONLY — no policy,
+# primary metric. Personas are GEOGRAPHIC ONLY, no policy,
 # priority, occupation, age, or sex content. Stereotype attribution stays
 # clean (the instrument measures the model's inference, not the persona's
 # actual views).
 #
-# v0.97 (2026-09-06) — TWO STRUCTURAL CHANGES, both required by the multi-state
+# v0.97 (2026-09-06), TWO STRUCTURAL CHANGES, both required by the multi-state
 # expansion, from the 2026-09-06 multi-state persona research.
 #
 # 1. PERSONAS ARE NOW SCOPED BY STATE. Until v0.97 this file was one flat list
@@ -124,12 +124,12 @@ personas:
     intro: "I'm an Alaska voter living in Bethel, in Western Alaska"
     axis: rural_periphery
     note: "Off-road, large Alaska Native population, Western Alaska. Carries the rural / off-road / Indigenous axes the review gate requires."
-  # v0.36.2 / ADR-021 (2026-06-12) — replaced north_slope_village with
+  # v0.36.2 / ADR-021 (2026-06-12), replaced north_slope_village with
   # juneau as the urban-D-base proxy. The North Slope Borough is ~9,000
   # people and politically mixed (oil-economy + Indigenous overlap
   # produces inconsistent partisan signal). Juneau (~32K) is the state
   # capital, government-employee-heavy, university town, and the most
-  # reliably Democratic-leaning city in Alaska — a better proxy for the
+  # reliably Democratic-leaning city in Alaska, a better proxy for the
   # urban D-base axis the persona set was missing. The rural-Indigenous
   # axis is preserved via bethel_western.
   juneau:
@@ -255,7 +255,7 @@ personas:
 
 # Review-gate checklist specific to this file:
 review_gate:
-  - "Every persona intro contains place-of-residence text ONLY — no policy, priority, occupation, age, sex, party, industry, or candidate name."
+  - "Every persona intro contains place-of-residence text ONLY, no policy, priority, occupation, age, sex, party, industry, or candidate name."
   - "Each state has exactly one persona with `axis: baseline`, and it is the only persona in that state without a location clause."
   - "Within a state, all intros begin with the same phrase ('I'm an Alaska voter', 'I'm a Maine voter') so the delta isolates the geographic clause."
   - "Every state populates `metro_core` and `rural_periphery`. `suburban_ring` is populated everywhere EXCEPT Maine, where it is empty by design (no city over 100,000, no suburban county) and must stay empty rather than be filled with a stand-in."

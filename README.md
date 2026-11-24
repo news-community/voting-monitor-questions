@@ -3,14 +3,15 @@
 The questions [Voting Monitor](https://votingmonitor.org) asked AI chatbots about the 2026 U.S. elections:
 9 races in 6 states (Alaska, Iowa, Maine, Michigan, Ohio, Texas), 33 topic wordings, 26 voter personas and 2 conditions, put daily to ChatGPT, Claude, Gemini and Grok through Election Day 2026.
 
-This is the instrument, so you can read exactly what each chatbot was asked and ask it again.
-The answers, and what they added up to, are on the site: [results](https://votingmonitor.org/results/), [methodology](https://votingmonitor.org/how-it-works/) and the [published data](https://votingmonitor.org/audit/).
+**What happened.** In the nine races scored, ChatGPT and Claude never clearly favored a losing candidate; Grok clearly favored the loser three times, in Alaska Senate, Iowa Senate and Texas Senate. For comparison, the prediction markets clearly favored the winner in 7 of the 8 races they priced, the polls in 5 of 8, and the four chatbots together in 4 of 9. Vote counts are unofficial until each state certifies. Race by race: [the results](https://votingmonitor.org/results/).
+
+This repository is the instrument: exactly what each chatbot was asked, so you can read it and ask it again. The answers and how they were scored are on the site: [results](https://votingmonitor.org/results/), [methodology](https://votingmonitor.org/how-it-works/), what the method does not measure ([limits](https://votingmonitor.org/how-it-works/#limits)) and the [published data](https://votingmonitor.org/audit/).
 
 **It measures the chatbots, not the voters.** It is not a poll of people and not a forecast.
 
 ## Why the questions are published
 
-Voting advice applications such as StemWijzer in the Netherlands and the Wahl-O-Mat in Germany publish the statements they put to voters and each party's answers, so anyone can check how they reach a recommendation. A chatbot asked whom to vote for publishes nothing of the kind. A measurement of chatbots should not repeat that, so these are the questions exactly as asked: read them, rerun them, or argue with them.
+Voting advice applications such as StemWijzer in the Netherlands and the Wahl-O-Mat in Germany publish the statements they put to voters and each party's answers, so anyone can check how they reach a recommendation. A chatbot asked whom to vote for publishes nothing of the kind. A measurement of chatbots should not repeat that, so these are the questions exactly as asked: read them, ask them again, or argue with them.
 
 ## What is here
 
@@ -22,6 +23,9 @@ Voting advice applications such as StemWijzer in the Netherlands and the Wahl-O-
 | [`weighting.yaml`](weighting.yaml) | The voter-exposure weights, including each chatbot's split between its models |
 | [`persona_weighting.yaml`](persona_weighting.yaml) | Alaska's regional weights for the personas |
 | [`system-prompt.yaml`](system-prompt.yaml) | The system prompt sent with every question, rendered by the site's code for each state |
+| [`examples.md`](examples.md) | Two questions exactly as sent, system prompt and message |
+| [`render.py`](render.py) | Prints any question as sent, for any race, topic, persona and condition (Python and PyYAML; calls no chatbot) |
+| [`DECISIONS.md`](DECISIONS.md) | What each decision cited in the files decided |
 
 ## How one question is asked
 
@@ -30,6 +34,8 @@ Voting advice applications such as StemWijzer in the Netherlands and the Wahl-O-
 3. Under the `escape_hatch` condition the `structural_options` are added (decline, not enough information, the positions are similar, no clear match), so a chatbot can decline cleanly. Under `pressed` there are only candidates.
 4. `system-prompt.yaml` is the system prompt.
 5. If the answer names no candidate, two more turns follow (`followup` in `probes.yaml`): the chatbot describes each candidate's positions, then is asked again, options reshuffled.
+
+`render.py` does all of this for any question (`python render.py --list` to start), and [`examples.md`](examples.md) shows two in full. The code that sent the questions, read the answers and tracked their cost is not published: it holds the site's keys and accounts. The settings it used are in `examples.md`.
 
 ## What the wording does
 
@@ -43,39 +49,21 @@ Each topic gives the voter a stated priority (`priority` in `probes.yaml`), and 
 
 ## Version
 
-The site records a question-set version with every answer. These files are `qset@53c96ad (ACTIVE)`. The last version the site measured with, from Oct. 1 through Election Day 2026, was `qset@c553887`; the only difference is comments that pointed into private documents, rewritten before publishing.
+The site records a question-set version with every answer. These files are `qset@502aeb9 (ACTIVE)`. The last version the site measured with, from Oct. 1 through Election Day 2026, was `qset@c553887`. The differences are in comments and notes only: pointers into private documents were rewritten before publishing, and dashes were later replaced. No wording sent to a chatbot changed.
 
 The version is a hash over `probes.yaml`, `personas.yaml`, the system prompt, and one file not published here (the candidate contact list, which holds campaign email addresses), so it cannot be recomputed from this repository alone. Every change to it the site recorded is listed at [https://votingmonitor.org/audit/](https://votingmonitor.org/audit/) and in [`version_events.json`](https://votingmonitor.org/data/version_events.json).
 
-Status: `ACTIVE`. The set was used as written; the editorial review its files call for (the `review_gate` lists) was never completed.
+**Status: final.** This is the set used through Election Day 2026, when the asking stopped. The files' own `status` field still reads `ACTIVE`, the label they carried while in use, left as it was because the version above is computed from it. The set was used as written; the editorial review its files call for (the `review_gate` lists) was never completed.
 
-## Decisions cited
-
-Comments in these files cite the site's decision records by number. They are not published; this is what each one decided.
+## Three decisions that shaped the set
 
 | Decision | Date | What it decided |
 |---|---|---|
-| ADR-011 | 2026-05-26 | Reworded Turn 1 to alignment framing; removed v0.8 essence Turn 4 |
-| ADR-015 | 2026-06-11 | Pre-primary roster extension, polling + fundraising override |
-| ADR-016 | 2026-06-11 | AK-GOV roster, apply the §1 criterion as written |
-| ADR-017 | 2026-06-11 | Founder-pilot inclusion of Alaska State Senate District O |
-| ADR-018 | 2026-06-12 | AK-GOV field correction, withdraw Dahlstrom, add Walker and McGuire |
-| ADR-019 | 2026-06-12 | Per-race topic mixes (state vs federal) |
-| ADR-020 | 2026-06-12 | AK-distinctive federal topics |
-| ADR-021 | 2026-06-12 | Juneau persona + housing topic (team feedback intake) |
-| ADR-022 | 2026-06-13 | Multi-framing on binarizable topics |
-| ADR-027 | 2026-06-14 | Panel cut to 6 slots + samples_per_cell = 1 |
-| ADR-030 | 2026-07-10 | Refresh the model panel to July-2026 consumer defaults (6 → 8 slots) |
-| ADR-032 | 2026-07-14 | Full-field correction, Hunt withdrawn (AK-SEN), Claman withdrawn + DeVries added (AK-GOV), Blankenship denied (AK-SS-O) |
-| ADR-034 | 2026-08-10 | Matt Schultz removed from active polling (AK-AL-HOUSE) |
-| ADR-035 | 2026-08-18 | Poll the ballot, not the campaign |
-| ADR-036 | 2026-09-04 | Post-primary roster re-gate to the certified general-election field |
-| ADR-038 | 2026-09-22 | Re-verify the ballot, not just the files |
-| ADR-039 | 2026-09-29 | Poll GPT-5.6 Luna and Sol for ChatGPT, and re-estimate each chatbot's model mix |
-| ADR-040 | 2026-09-29 | The headline AI share counts each chatbot once, its models by estimated use |
-| ADR-041 | 2026-11-01 | Election-week panel refresh: ChatGPT to GPT-5.6 Luna and GPT-6 Sol, Gemini adds 3.5 Flash-Lite and drops 3.1 Pro, sampling to 0.50 |
+| ADR-035 | 2026-08-18 | List every candidate whose name prints on the ballot, campaigning or not. A candidate left out reads as 0%, which cannot be told apart from a real 0%: Schultz, left out for six weeks, advanced from the primary. |
+| ADR-016 | 2026-06-11 | Applied the governor's race rule for who is listed exactly as written, which added three former officeholders who had been left out. |
+| ADR-041 | 2026-11-01 | In election week, moved ChatGPT to GPT-5.6 Luna and GPT-6 Sol, added Gemini 3.5 Flash-Lite and dropped Gemini 3.1 Pro, and asked half of all question combinations each day. |
 
-Labels such as `v0.37` are the site's internal release numbers.
+Every decision the files cite is in [`DECISIONS.md`](DECISIONS.md).
 
 ## Checksums
 
@@ -83,11 +71,11 @@ SHA-256 of each file as published:
 
 | File | SHA-256 |
 |---|---|
-| `probes.yaml` | `a9aa7b761f974f7c3ef425fd3cb623e238c5dada54b2ae5f60e5f641ddc95cf1` |
-| `personas.yaml` | `b4205f10a990edece95399a236a1408943eb47a0589166b0bc0a917abfb2ba04` |
-| `topics.md` | `5bd65f54c2227a1ddc040fdb3c4fd51ba29db7c2f5b0b00e34fe35e7d72fb10b` |
-| `weighting.yaml` | `17255005c29d9986edc7db8965d28922d4d4f5ef4f76ce424183574f73e1ccf7` |
-| `persona_weighting.yaml` | `85d8972f62df750eb30f29b3c24dff4b9b9daeee4ac383eb406a7882e8c9f2a1` |
+| `probes.yaml` | `73136913feae08109f78a4686da8f085e27e802a98f003ae3724aac2f8572369` |
+| `personas.yaml` | `c34ed2d60f4fc4336ec1fd5fceb09cd4cd5a6a451e133991105acb1a6c43e075` |
+| `topics.md` | `7bd432c32dc0295d9d4081c726b6df8476c6ab196fd7357f134ef1c44001f83e` |
+| `weighting.yaml` | `f161c0cdc82be9e48e3f969ad28b2bafbb75ddc9fe36532a31a92341739f9c83` |
+| `persona_weighting.yaml` | `8e0668d7e1c0968c75ada6c3305d31106d9a99c8eaa3c672a2785f8194b5530a` |
 | `system-prompt.yaml` | `0f3a5c5c51dd8eab11be792ae94892e77ee6c50a7217c316cfd382859590cb44` |
 
 ## Changes
